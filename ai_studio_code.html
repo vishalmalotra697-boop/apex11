@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APEX 11 - Fantasy Sports Prototype</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      background-color: #080c14;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-outfit {
+      font-family: 'Outfit', sans-serif;
+    }
+    /* Pitch Grass Styling */
+    .pitch-stripes {
+      background: repeating-linear-gradient(
+        180deg,
+        #134e2b 0px,
+        #134e2b 36px,
+        #0f3d22 36px,
+        #0f3d22 72px
+      );
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 bg-[#090d16]/95 backdrop-blur-md border-b border-slate-800 px-4 md:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-6">
+      <!-- Zone 1: Logo -->
+      <div onclick="switchView('home')" class="flex items-center gap-2.5 cursor-pointer">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 font-black text-slate-950 font-outfit text-lg">
+          🛡️
+        </div>
+        <div class="flex items-center font-outfit text-xl font-extrabold tracking-tight">
+          <span class="text-white">APEX</span>
+          <span class="text-emerald-400">11</span>
+        </div>
+      </div>
+
+      <!-- Zone 2: Links -->
+      <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-400">
+        <button onclick="switchView('home')" id="nav-home" class="text-emerald-400 font-semibold cursor-pointer">मैचेस (Matches)</button>
+        <button onclick="switchView('my-contests')" id="nav-my-contests" class="hover:text-slate-200 cursor-pointer">माई कॉन्टेस्ट्स (<span id="nav-contests-count">1</span>)</button>
+        <button onclick="switchView('live-arena')" id="nav-live-arena" class="hover:text-slate-200 flex items-center gap-1.5 cursor-pointer text-amber-400">
+          <span>🏆 लाइव लीडरबोर्ड</span>
+        </button>
+        <button onclick="openModal('rulesModal')" class="hover:text-slate-200 cursor-pointer">पॉइंट्स नियम (Rules)</button>
+      </nav>
+
+      <!-- Zone 3: Virtual Wallet Button -->
+      <div class="flex items-center gap-3">
+        <button onclick="openModal('walletModal')" class="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-all cursor-pointer">
+          <span class="text-emerald-400">💰</span>
+          <div class="text-left">
+            <div class="text-[10px] text-slate-400 font-medium leading-none">वॉलेट</div>
+            <div class="text-xs font-bold text-slate-100 tabular-nums">₹<span id="wallet-balance-display">5,000</span></div>
+          </div>
+          <span class="text-[11px] font-bold text-emerald-400 pl-1 border-l border-slate-800">+ कैश</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8">
+
+    <!-- 1. HOME SCREEN VIEW -->
+    <div id="view-home" class="space-y-8">
+      
+      <!-- Featured Marquee Banner -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-[#0e2518] border border-emerald-500/40 p-6 md:p-8 shadow-2xl">
+        <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-2.5 max-w-2xl">
+            <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+              <span>🔥 मेगा कॉन्टेस्ट (MEGA CONTEST)</span>
+              <span class="text-slate-600">·</span>
+              <span class="text-slate-300">ICC T20 वर्ल्ड कप · सेमीफाइनल 1</span>
+            </div>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-tight font-outfit">
+              भारत (IND) vs ऑस्ट्रेलिया (AUS)
+            </h1>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              100 वर्चुअल क्रेडिट्स में अपनी सर्वश्रेष्ठ 11 खिलाड़ी टीम बनाएं। <span class="text-emerald-400 font-bold">₹10 करोड़</span> के मेगा प्राइज पूल में हिस्सा लें! प्रथम पुरस्कार: ₹1.5 करोड़।
+            </p>
+            <div class="flex flex-wrap items-center gap-4 pt-1">
+              <div class="flex items-center gap-2 bg-slate-950/70 px-3.5 py-1.5 rounded-lg border border-slate-800 text-xs text-amber-400 tabular-nums font-semibold">
+                <span>⏱️ मैच शुरू: </span>
+                <span id="timer-banner">01h : 24m : 40s</span>
+              </div>
+              <div class="flex items-center gap-1.5 bg-slate-950/70 px-3.5 py-1.5 rounded-lg border border-slate-800 text-xs text-emerald-400 font-semibold">
+                <span>🏆 एंट्री केवल ₹49 से</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <button onclick="startTeamCreation('match-1')" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/25 active:scale-95 transition-all text-sm cursor-pointer">
+              टीम बनाएं (Create Team)
+            </button>
+            <button onclick="openContestsView('match-1')" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl border border-slate-700 text-sm cursor-pointer transition-colors">
+              कॉन्टेस्ट्स देखें
+            </button>
+            <button onclick="switchView('live-arena')" class="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-emerald-400 font-medium rounded-xl border border-emerald-500/30 text-sm cursor-pointer flex items-center gap-1.5">
+              <span>⚡ लाइव एरिना</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sports Switcher Controls -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 w-fit">
+          <button onclick="filterSports('all')" id="tab-sport-all" class="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-500 text-slate-950 shadow-sm cursor-pointer">सभी खेल (All)</button>
+          <button onclick="filterSports('cricket')" id="tab-sport-cricket" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white cursor-pointer">🏏 क्रिकेट (Cricket)</button>
+          <button onclick="filterSports('football')" id="tab-sport-football" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white cursor-pointer">⚽ फुटबॉल (Football)</button>
+        </div>
+      </div>
+
+      <!-- Match Cards Grid -->
+      <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+    </div>
+
+    <!-- 2. CONTESTS VIEW (When Match is clicked) -->
+    <div id="view-contests" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <button onclick="switchView('home')" class="text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer">
+          ← मैचेस पर वापस जाएं
+        </button>
+        <h2 id="contest-match-title" class="text-base font-extrabold text-white font-outfit">IND vs AUS - कॉन्टेस्ट्स</h2>
+        <button onclick="startTeamCreation('match-1')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md cursor-pointer">
+          + नई टीम बनाएं
+        </button>
+      </div>
+
+      <!-- Match Mini Header -->
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <span class="text-3xl">🇮🇳</span>
+          <div>
+            <div class="text-sm font-bold text-white">भारत vs ऑस्ट्रेलिया</div>
+            <div class="text-xs text-slate-400">मेलबर्न क्रिकेट ग्राउंड (MCG)</div>
+          </div>
+          <span class="text-3xl">🇦🇺</span>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-slate-400">कुल प्राइज पूल</div>
+          <div class="text-xl font-black text-emerald-400 font-outfit tabular-nums">₹10,00,00,000</div>
+        </div>
+      </div>
+
+      <!-- Contests Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="contests-list">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+    </div>
+
+    <!-- 3. TEAM CREATION INTERFACE (100 Credits Limit) -->
+    <div id="view-team-builder" class="hidden space-y-6 max-w-4xl mx-auto pb-28">
+      
+      <!-- Builder Top Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <button onclick="switchView('contests')" class="text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+          ← रद्द करें (Cancel)
+        </button>
+        <div class="text-center">
+          <h2 id="builder-step-title" class="text-base font-extrabold text-white font-outfit">अपनी 11 सदस्यीय टीम चुनें</h2>
+          <div class="text-xs text-slate-400">अधिकतम 7 खिलाड़ी एक ही टीम से चुन सकते हैं</div>
+        </div>
+        <button onclick="autoPickSquad()" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold cursor-pointer">
+          ⚡ ऑटो-पिक (Auto-Pick)
+        </button>
+      </div>
+
+      <!-- Status Summary Bar: Credits & 11 Slots -->
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] text-slate-400">खिलाड़ी चुने गए (Players)</div>
+            <div class="text-lg font-bold text-white tabular-nums">
+              <span id="selected-count-badge" class="text-emerald-400 text-xl font-black">0</span>
+              <span class="text-slate-500">/ 11</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-[11px] text-slate-400">बचे हुए क्रेडिट्स (Credits Left)</div>
+            <div class="text-lg font-bold text-emerald-400 tabular-nums">
+              <span id="credits-left-badge" class="text-xl font-black">100.0</span>
+              <span class="text-slate-500 text-xs">/ 100</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+              <span class="font-bold text-white">IND: </span>
+              <span id="team1-count-badge" class="text-emerald-400 font-bold">0</span>/7
+            </div>
+            <div class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+              <span class="font-bold text-white">AUS: </span>
+              <span id="team2-count-badge" class="text-amber-400 font-bold">0</span>/7
+            </div>
+          </div>
+
+          <button onclick="openModal('pitchModal')" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+            <span>🏟️ ग्राउंड प्रिव्यू (Pitch View)</span>
+          </button>
+        </div>
+
+        <!-- 11 Slot Dots -->
+        <div class="grid grid-cols-11 gap-1.5 pt-1" id="slot-dots">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- STEP 1: ROLE TABS & PLAYER SELECTION -->
+      <div id="step-1-players" class="space-y-4">
+        <!-- Role Tabs -->
+        <div class="grid grid-cols-4 gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 text-center">
+          <button onclick="setRoleTab('WK')" id="role-tab-WK" class="py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 cursor-pointer">
+            WK विकेटकीपर (<span id="count-WK">0</span>)
+          </button>
+          <button onclick="setRoleTab('BAT')" id="role-tab-BAT" class="py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer">
+            BAT बल्लेबाज (<span id="count-BAT">0</span>)
+          </button>
+          <button onclick="setRoleTab('AR')" id="role-tab-AR" class="py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer">
+            AR ऑलराउंडर (<span id="count-AR">0</span>)
+          </button>
+          <button onclick="setRoleTab('BOWL')" id="role-tab-BOWL" class="py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer">
+            BOWL गेंदबाज (<span id="count-BOWL">0</span>)
+          </button>
+        </div>
+
+        <div class="text-[11px] text-slate-400 text-center" id="role-instructions">
+          कम से कम 1 और अधिकतम 4 विकेटकीपर चुनें
+        </div>
+
+        <!-- Players List Table -->
+        <div class="space-y-2" id="players-list-table">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- STEP 2: CAPTAIN & VICE-CAPTAIN SELECTION -->
+      <div id="step-2-captain" class="hidden space-y-4">
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+          <div class="font-bold text-white flex items-center gap-2 mb-1">
+            <span>⭐ कैप्टन और वाइस-कैप्टन मल्टीप्लायर</span>
+          </div>
+          <p class="text-slate-400">
+            आपका <strong class="text-amber-400">कैप्टन (C) 2X पॉइंट्स</strong> कमाता है और <strong class="text-emerald-400">वाइस-कैप्टन (VC) 1.5X पॉइंट्स</strong> कमाता है।
+          </p>
+        </div>
+
+        <div class="space-y-2.5" id="captain-selection-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Bottom Floating Action Bar -->
+      <div class="fixed bottom-0 left-0 right-0 z-30 p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <button onclick="openModal('pitchModal')" class="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-medium text-xs cursor-pointer">
+            🏟️ पिच प्रिव्यू
+          </button>
+
+          <button id="btn-next-step" onclick="proceedToCaptainStep()" class="flex-1 max-w-sm py-3 px-6 rounded-xl font-bold text-sm bg-slate-800 text-slate-500 cursor-not-allowed transition-all">
+            कैप्टन और VC चुनें →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. LIVE LEADERBOARD & REAL-TIME SIMULATION -->
+    <div id="view-live-arena" class="hidden space-y-6">
+      
+      <!-- Top Bar -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <button onclick="switchView('home')" class="text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+          ← होम पर वापस जाएं
+        </button>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h2 class="text-base font-extrabold text-white font-outfit">लाइव मैच एरिना और लीडरबोर्ड</h2>
+        </div>
+        <div class="text-xs text-slate-400">मेगा कॉन्टेस्ट · ₹10 करोड़</div>
+      </div>
+
+      <!-- Live Simulator Scoreboard Card -->
+      <div class="p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-[#0e2a1b] border border-emerald-500/30 shadow-2xl space-y-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div class="space-y-1">
+            <div class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <span>⚡ लाइव मैच सिमुलेशन (BALL-BY-BALL)</span>
+            </div>
+            <div class="text-2xl md:text-3xl font-black text-white font-outfit tabular-nums" id="live-match-score">
+              IND: 114/2 (12.1 ov) · AUS: 0/0
+            </div>
+            <div class="text-xs text-slate-400" id="live-event-subtitle">
+              विराट कोहली ने शानदार 50 रन पूरे किए! (+10 अंक)
+            </div>
+          </div>
+
+          <!-- Controls: Play, Step, Reset -->
+          <div class="flex items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800">
+            <button id="btn-toggle-sim" onclick="toggleSimulation()" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer shadow-md">
+              ▶ प्ले सिमुलेशन
+            </button>
+            <button onclick="stepSimulation()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs cursor-pointer">
+              अगली गेंद (Next Ball)
+            </button>
+            <button onclick="resetSimulation()" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs cursor-pointer" title="रीसेट">
+              ↺ रीसेट
+            </button>
+            <span class="text-xs font-mono text-slate-400 px-2 tabular-nums" id="sim-event-counter">इवेंट 4/8</span>
+          </div>
+        </div>
+
+        <!-- Live Commentary Banner -->
+        <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs flex items-start gap-3">
+          <span class="font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0" id="live-over-tag">Over 12.1</span>
+          <div id="live-commentary-text" class="text-slate-300">
+            कोहली ने डीप कवर पर सिंगल लेकर अपना अर्धशतक पूरा किया। दर्शक तालियों से गूंज उठे!
+          </div>
+        </div>
+      </div>
+
+      <!-- Current User Standing Highlight -->
+      <div class="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border-2 border-emerald-500/50 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500 text-slate-950 flex flex-col items-center justify-center font-extrabold shadow-lg">
+            <span class="text-[9px] uppercase font-mono">RANK</span>
+            <span class="text-xl font-black font-outfit tabular-nums" id="user-live-rank">#3</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-bold text-white font-outfit" id="user-team-name-card">T1 · Champions XI</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-400 text-slate-950">विनिंग जोन (WINNING ZONE)</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-1">
+              <span>C: विराट कोहली (2X)</span> · <span>VC: जसप्रीत बुमराह (1.5X)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6 text-right">
+          <div>
+            <div class="text-[11px] text-slate-400">कुल लाइव अंक (Points)</div>
+            <div class="text-2xl font-black text-emerald-400 tabular-nums font-outfit" id="user-live-points">331.0 pts</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-slate-400">अनुमानित इनाम (Projected Prize)</div>
+            <div class="text-2xl font-black text-amber-400 tabular-nums font-outfit" id="user-live-prize">₹25,00,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard Table -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+        <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-amber-400">🏆</span>
+            <h3 class="text-sm font-bold text-white font-outfit">लाइव कॉन्टेस्ट लीडरबोर्ड</h3>
+          </div>
+          <div class="text-xs text-slate-400">हर गेंद पर ऑटोमैटिक अपडेट</div>
+        </div>
+
+        <div class="grid grid-cols-12 px-6 py-3 bg-slate-950/60 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+          <div class="col-span-2">रैंक</div>
+          <div class="col-span-5 md:col-span-4">यूजर / टीम</div>
+          <div class="hidden md:block col-span-2">C व VC</div>
+          <div class="col-span-3 md:col-span-2 text-right">अंक (Points)</div>
+          <div class="col-span-2 md:col-span-2 text-right">प्राइज (Prize)</div>
+        </div>
+
+        <div class="divide-y divide-slate-800/60" id="leaderboard-rows">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MY CONTESTS OVERVIEW -->
+    <div id="view-my-contests" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <button onclick="switchView('home')" class="text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+          ← मैचेस पर वापस जाएं
+        </button>
+        <h2 class="text-base font-extrabold text-white font-outfit">मेरे जॉइन किए गए कॉन्टेस्ट्स</h2>
+        <div class="text-xs text-slate-400">कुल: <span id="my-contests-total">1</span></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="my-contests-cards">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= PITCH GROUND PREVIEW MODAL ================= -->
+  <div id="pitchModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 md:p-6 bg-black/85 backdrop-blur-md">
+    <div class="relative w-full max-w-2xl bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Top -->
+      <div class="px-5 py-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h3 class="text-base font-bold text-white font-outfit">ग्राउंड टीम प्रिव्यू (Pitch View)</h3>
+          <span class="text-xs text-slate-400">·</span>
+          <span id="pitch-player-count" class="text-xs font-semibold text-emerald-400">11/11 खिलाड़ी</span>
+        </div>
+        <button onclick="closeModal('pitchModal')" class="p-1 rounded-lg text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <!-- Field -->
+      <div class="relative flex-1 p-4 md:p-6 overflow-y-auto pitch-stripes min-h-[460px] flex flex-col justify-between">
+        <div class="absolute inset-4 border border-white/20 rounded-xl pointer-events-none"></div>
+        
+        <!-- Cricket Pitch -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-48 border border-white/20 bg-amber-900/15 rounded-sm pointer-events-none">
+          <div class="absolute top-2 left-2 right-2 border-b border-white/20"></div>
+          <div class="absolute bottom-2 left-2 right-2 border-t border-white/20"></div>
+        </div>
+
+        <!-- Row 1: Wicket Keepers -->
+        <div class="relative z-10 text-center space-y-1">
+          <div class="text-[10px] uppercase font-bold text-emerald-200/80">विकेटकीपर (WK)</div>
+          <div class="flex items-center justify-center gap-6 flex-wrap" id="pitch-wk-row"></div>
+        </div>
+
+        <!-- Row 2: Batsmen -->
+        <div class="relative z-10 text-center space-y-1 my-2">
+          <div class="text-[10px] uppercase font-bold text-emerald-200/80">बल्लेबाज (BAT)</div>
+          <div class="flex items-center justify-center gap-6 flex-wrap" id="pitch-bat-row"></div>
+        </div>
+
+        <!-- Row 3: All-Rounders -->
+        <div class="relative z-10 text-center space-y-1 my-2">
+          <div class="text-[10px] uppercase font-bold text-emerald-200/80">ऑलराउंडर (AR)</div>
+          <div class="flex items-center justify-center gap-6 flex-wrap" id="pitch-ar-row"></div>
+        </div>
+
+        <!-- Row 4: Bowlers -->
+        <div class="relative z-10 text-center space-y-1">
+          <div class="text-[10px] uppercase font-bold text-emerald-200/80">गेंदबाज (BOWL)</div>
+          <div class="flex items-center justify-center gap-6 flex-wrap" id="pitch-bowl-row"></div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="px-5 py-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
+        <div class="flex items-center gap-3">
+          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-amber-400 text-slate-950 font-bold text-[9px] flex items-center justify-center">C</span> कैप्टन (2X)</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-950 font-bold text-[9px] flex items-center justify-center">VC</span> वाइस-कैप्टन (1.5X)</span>
+        </div>
+        <button onclick="closeModal('pitchModal')" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIRTUAL WALLET MODAL ================= -->
+  <div id="walletModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="relative w-full max-w-md bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white font-outfit">💰 फैंटेसी वॉलेट</h3>
+        <button onclick="closeModal('walletModal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-[#0e2518] border border-emerald-500/30 text-center space-y-1">
+        <div class="text-xs text-slate-400">उपलब्ध कुल बैलेंस</div>
+        <div class="text-3xl font-black text-white font-outfit tabular-nums">
+          ₹<span id="modal-wallet-balance">5,000</span>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <label class="text-xs font-semibold text-slate-300">वर्चुअल कैश जोड़ें (Add Demo Cash)</label>
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-400">₹</span>
+          <input type="number" id="input-add-cash" value="500" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold focus:outline-none focus:border-emerald-500 tabular-nums">
+          <button onclick="depositCash()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer shadow-md">
+            + जोड़ें
+          </button>
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <button onclick="quickSetAmount(100)" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300">+₹100</button>
+          <button onclick="quickSetAmount(500)" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300">+₹500</button>
+          <button onclick="quickSetAmount(1000)" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300">+₹1,000</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FANTASY RULES MODAL ================= -->
+  <div id="rulesModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="relative w-full max-w-xl bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white font-outfit">📖 APEX 11 फैंटेसी पॉइंट्स नियम</h3>
+        <button onclick="closeModal('rulesModal')" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-300">
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+          <div class="font-bold text-amber-400">⭐ मल्टीप्लायर्स:</div>
+          <div>कैप्टन (C): 2X पॉइंट्स | वाइस-कैप्टन (VC): 1.5X पॉइंट्स</div>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-emerald-400 uppercase">🏏 T20 क्रिकेट स्कोरिंग सिस्टम:</h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-400">
+            <li>प्रत्येक रन: <strong>+1 पॉइंट</strong></li>
+            <li>चौका बोनस: <strong>+1 पॉइंट</strong> | छक्का बोनस: <strong>+2 पॉइंट्स</strong></li>
+            <li>अर्धशतक (50 रन): <strong>+8 पॉइंट्स</strong> | शतक (100 रन): <strong>+16 पॉइंट्स</strong></li>
+            <li>विकेट (रन आउट को छोड़कर): <strong>+25 पॉइंट्स</strong></li>
+            <li>बोल्ड / LBW बोनस: <strong>+8 पॉइंट्स</strong></li>
+            <li>3 विकेट हॉल: <strong>+4 पॉइंट्स</strong> | 5 विकेट हॉल: <strong>+16 पॉइंट्स</strong></li>
+            <li>कैच: <strong>+8 पॉइंट्स</strong> | स्टंपिंग: <strong>+12 पॉइंट्स</strong></li>
+            <li>डक आउट (बल्लेबाज/ऑलराउंडर): <strong>-2 पॉइंट्स</strong></li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-emerald-400 uppercase">⚽ फुटबॉल स्कोरिंग सिस्टम:</h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-400">
+            <li>फॉरवर्ड का गोल: <strong>+40 पॉइंट्स</strong> | मिडफील्डर का गोल: <strong>+50 पॉइंट्स</strong></li>
+            <li>असिस्ट (Goal Assist): <strong>+20 पॉइंट्स</strong></li>
+            <li>क्लीन शीट (DEF / GK): <strong>+20 पॉइंट्स</strong></li>
+            <li>पेनल्टी सेव: <strong>+50 पॉइंट्स</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    let walletBalance = 5000;
+    let selectedPlayers = [];
+    let captainId = "p-ind-3"; // Kohli default
+    let viceCaptainId = "p-ind-10"; // Bumrah default
+    let activeRoleTab = "WK";
+    let isSimulating = false;
+    let simulationIndex = 4;
+    let simInterval = null;
+
+    // --- DATA ---
+    const MATCHES = [
+      {
+        id: "match-1",
+        sport: "cricket",
+        title: "IND vs AUS",
+        series: "ICC T20 वर्ल्ड कप · सेमीफाइनल 1",
+        team1: { name: "India", code: "IND", flag: "🇮🇳" },
+        team2: { name: "Australia", code: "AUS", flag: "🇦🇺" },
+        time: "01h : 24m : 40s",
+        venue: "मेलबर्न क्रिकेट ग्राउंड (MCG)",
+        pool: "₹10 करोड़",
+        entry: 49
+      },
+      {
+        id: "match-2",
+        sport: "cricket",
+        title: "CSK vs MI",
+        series: "इंडियन T20 लीग · मैच 34",
+        team1: { name: "Chennai Super Kings", code: "CSK", flag: "🦁" },
+        team2: { name: "Mumbai Indians", code: "MI", flag: "⚡" },
+        time: "04h : 15m : 00s",
+        venue: "वानखेड़े स्टेडियम, मुंबई",
+        pool: "₹20 करोड़",
+        entry: 49
+      },
+      {
+        id: "match-3",
+        sport: "football",
+        title: "RMA vs MCI",
+        series: "UEFA चैंपियंस लीग · क्वार्टरफाइनल",
+        team1: { name: "Real Madrid", code: "RMA", flag: "👑" },
+        team2: { name: "Manchester City", code: "MCI", flag: "🏙️" },
+        time: "02h : 10m : 00s",
+        venue: "सैंटियागो बर्नाब्यू, मैड्रिड",
+        pool: "₹8 करोड़",
+        entry: 39
+      }
+    ];
+
+    const PLAYERS = [
+      // Wicketkeepers
+      { id: "p-ind-1", name: "Rishabh Pant", team: "IND", role: "WK", credits: 9.0, number: 17 },
+      { id: "p-aus-1", name: "Josh Inglis", team: "AUS", role: "WK", credits: 8.5, number: 48 },
+      { id: "p-ind-2", name: "Sanju Samson", team: "IND", role: "WK", credits: 8.0, number: 9 },
+
+      // Batsmen
+      { id: "p-ind-3", name: "Virat Kohli", team: "IND", role: "BAT", credits: 10.0, number: 18 },
+      { id: "p-ind-4", name: "Rohit Sharma", team: "IND", role: "BAT", credits: 9.5, number: 45 },
+      { id: "p-ind-5", name: "Suryakumar Yadav", team: "IND", role: "BAT", credits: 9.0, number: 63 },
+      { id: "p-aus-3", name: "Travis Head", team: "AUS", role: "BAT", credits: 9.5, number: 62 },
+      { id: "p-aus-4", name: "David Warner", team: "AUS", role: "BAT", credits: 9.0, number: 31 },
+
+      // All-Rounders
+      { id: "p-ind-7", name: "Hardik Pandya", team: "IND", role: "AR", credits: 9.0, number: 33 },
+      { id: "p-aus-7", name: "Glenn Maxwell", team: "AUS", role: "AR", credits: 9.0, number: 32 },
+      { id: "p-aus-8", name: "Marcus Stoinis", team: "AUS", role: "AR", credits: 8.5, number: 17 },
+      { id: "p-ind-8", name: "Axar Patel", team: "IND", role: "AR", credits: 8.0, number: 20 },
+
+      // Bowlers
+      { id: "p-ind-10", name: "Jasprit Bumrah", team: "IND", role: "BOWL", credits: 9.5, number: 93 },
+      { id: "p-ind-11", name: "Arshdeep Singh", team: "IND", role: "BOWL", credits: 8.5, number: 2 },
+      { id: "p-aus-10", name: "Mitchell Starc", team: "AUS", role: "BOWL", credits: 9.0, number: 56 },
+      { id: "p-aus-9", name: "Pat Cummins", team: "AUS", role: "BOWL", credits: 9.0, number: 30 },
+      { id: "p-aus-11", name: "Adam Zampa", team: "AUS", role: "BOWL", credits: 8.5, number: 88 },
+      { id: "p-ind-12", name: "Kuldeep Yadav", team: "IND", role: "BOWL", credits: 8.5, number: 23 }
+    ];
+
+    const CONTESTS = [
+      { id: "c-1", title: "मेगा कॉन्टेस्ट · ₹10 करोड़", pool: 100000000, fee: 49, spotsTotal: 2500000, spotsLeft: 520000, firstPrize: 15000000 },
+      { id: "c-2", title: "मिनी मेगा कॉन्टेस्ट · ₹50 लाख", pool: 5000000, fee: 29, spotsTotal: 200000, spotsLeft: 34000, firstPrize: 500000 },
+      { id: "c-3", title: "हेड-टू-हेड (2 स्पॉट्स)", pool: 100, fee: 57, spotsTotal: 2, spotsLeft: 1, firstPrize: 100 },
+      { id: "c-4", title: "फ्री प्रैक्टिस लीग", pool: 0, fee: 0, spotsTotal: 10000, spotsLeft: 4200, firstPrize: 0 }
+    ];
+
+    const SIMULATION_EVENTS = [
+      { over: "Over 1.2", score: "IND: 10/0 (1.2 ov)", text: "रोहित शर्मा ने शानदार कवर ड्राइव से चौका जड़ा! (+5 अंक)", bonusPoints: 5 },
+      { over: "Over 2.4", score: "IND: 22/0 (2.4 ov)", text: "विराट कोहली का क्लासिकल स्ट्रेट छक्का! (+8 अंक)", bonusPoints: 8 },
+      { over: "Over 4.5", score: "IND: 46/1 (4.5 ov)", text: "विकेट! मिचेल स्टार्क की 148kph यॉर्कर पर रोहित बोल्ड! (+33 अंक स्टार्क)", bonusPoints: 0 },
+      { over: "Over 8.3", score: "IND: 78/2 (8.3 ov)", text: "विकेट! एडम जैम्पा की गुगली पर ऋषभ पंत कैच आउट! (+25 अंक जैम्पा)", bonusPoints: 0 },
+      { over: "Over 12.1", score: "IND: 114/2 (12.1 ov)", text: "अर्धशतक! विराट कोहली का शानदार 50 रन पूरा! (+10 अंक)", bonusPoints: 10 },
+      { over: "Over 16.4", score: "IND: 162/3 (16.4 ov)", text: "सूर्यकुमार यादव का 360-डिग्री स्कूप सिक्स! (+8 अंक)", bonusPoints: 8 },
+      { over: "Over 19.5", score: "IND: 198/4 (20.0 ov)", text: "हार्दिक पंड्या का अंतिम ओवर में धमाकेदार फिनिश! (+8 अंक)", bonusPoints: 8 },
+      { over: "Over 1.1 (2nd Inn)", score: "AUS: 0/1 (0.1 ov)", text: "बुमराह का जादू! ट्रेविस हेड पहली ही गेंद पर शून्य पर आउट! (+25 अंक बुमराह)", bonusPoints: 25 }
+    ];
+
+    const LEADERBOARD = [
+      { rank: 1, prev: 2, user: "MasterBlaster99", team: "T1", pts: 345.0, prize: "₹1.5 करोड़", c: "विराट कोहली", vc: "जसप्रीत बुमराह" },
+      { rank: 2, prev: 1, user: "CricketGuru_Kolkata", team: "T1", pts: 338.0, prize: "₹50 लाख", c: "रोहित शर्मा", vc: "हार्दिक पंड्या" },
+      { rank: 3, prev: 5, user: "You (Current User)", team: "T1 · Champions XI", pts: 331.0, prize: "₹25 लाख", c: "विराट कोहली", vc: "जसप्रीत बुमराह", isMe: true },
+      { rank: 4, prev: 3, user: "Finisher_7", team: "T2", pts: 326.5, prize: "₹10 लाख", c: "विराट कोहली", vc: "मिचेल स्टार्क" },
+      { rank: 5, prev: 7, user: "StrikeRate300", team: "T1", pts: 319.0, prize: "₹5 लाख", c: "सूर्यकुमार यादव", vc: "ग्लेन मैक्सवेल" },
+      { rank: 6, prev: 4, user: "YorkerKing93", team: "T1", pts: 314.5, prize: "₹2.5 लाख", c: "जसप्रीत बुमराह", vc: "पैट कमिंस" }
+    ];
+
+    // --- INITIALIZATION ---
+    window.addEventListener("DOMContentLoaded", () => {
+      // Auto pre-select standard 11 players for immediate play
+      autoPickSquad(false);
+      renderMatches("all");
+      renderContests();
+      renderLeaderboard();
+      renderMyContests();
+    });
+
+    // --- VIEWS ROUTING ---
+    function switchView(viewName) {
+      document.querySelectorAll("main > div").forEach(div => div.classList.add("hidden"));
+      const target = document.getElementById(`view-${viewName}`);
+      if (target) target.classList.remove("hidden");
+
+      // Update nav styling
+      ["home", "my-contests", "live-arena"].forEach(n => {
+        const el = document.getElementById(`nav-${n}`);
+        if (el) {
+          if (n === viewName) {
+            el.className = "text-emerald-400 font-semibold cursor-pointer";
+          } else {
+            el.className = "hover:text-slate-200 cursor-pointer";
+          }
+        }
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openContestsView(matchId) {
+      switchView("contests");
+    }
+
+    function startTeamCreation(matchId) {
+      switchView("team-builder");
+      document.getElementById("step-1-players").classList.remove("hidden");
+      document.getElementById("step-2-captain").classList.add("hidden");
+      document.getElementById("builder-step-title").innerText = "अपनी 11 सदस्यीय टीम चुनें (Step 1/2)";
+      document.getElementById("btn-next-step").innerText = "कैप्टन और VC चुनें →";
+      document.getElementById("btn-next-step").onclick = proceedToCaptainStep;
+      renderPlayersList();
+      updateBuilderUI();
+    }
+
+    // --- RENDER MATCHES ---
+    function renderMatches(sportFilter) {
+      const container = document.getElementById("matches-grid");
+      container.innerHTML = "";
+
+      const filtered = MATCHES.filter(m => sportFilter === "all" || m.sport === sportFilter);
+
+      filtered.forEach(m => {
+        const card = document.createElement("div");
+        card.className = "bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between shadow-lg";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
+              <span class="text-[11px] text-slate-400 font-medium">${m.series}</span>
+              <span class="text-xs text-amber-400 font-semibold tabular-nums">⏱️ ${m.time}</span>
+            </div>
+
+            <div class="flex items-center justify-between py-2">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">${m.team1.flag}</span>
+                <div>
+                  <div class="font-extrabold text-white font-outfit text-base">${m.team1.code}</div>
+                  <div class="text-xs text-slate-400">${m.team1.name}</div>
+                </div>
+              </div>
+
+              <span class="text-xs font-bold text-slate-500 bg-slate-950 px-2 py-0.5 rounded">VS</span>
+
+              <div class="flex items-center gap-2.5 text-right">
+                <div>
+                  <div class="font-extrabold text-white font-outfit text-base">${m.team2.code}</div>
+                  <div class="text-xs text-slate-400">${m.team2.name}</div>
+                </div>
+                <span class="text-2xl">${m.team2.flag}</span>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-slate-500 text-center mt-2">📍 ${m.venue}</div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800 space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-emerald-400 font-bold">🏆 प्राइज पूल ${m.pool}</span>
+              <span class="text-slate-400">एंट्री ₹${m.entry} से</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="openContestsView('${m.id}')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-white font-semibold cursor-pointer">
+                कॉन्टेस्ट्स
+              </button>
+              <button onclick="startTeamCreation('${m.id}')" class="py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold cursor-pointer">
+                टीम बनाएं
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterSports(sport) {
+      ["all", "cricket", "football"].forEach(s => {
+        const btn = document.getElementById(`tab-sport-${s}`);
+        if (s === sport) {
+          btn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-500 text-slate-950 shadow-sm cursor-pointer";
+        } else {
+          btn.className = "px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white cursor-pointer";
+        }
+      });
+      renderMatches(sport);
+    }
+
+    // --- CONTESTS LIST ---
+    function renderContests() {
+      const container = document.getElementById("contests-list");
+      container.innerHTML = "";
+
+      CONTESTS.forEach(c => {
+        const fill = Math.round(((c.spotsTotal - c.spotsLeft) / c.spotsTotal) * 100);
+        const card = document.createElement("div");
+        card.className = "p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-lg";
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="text-xs text-slate-400">प्राइज पूल</div>
+              <div class="text-xl font-black text-white font-outfit tabular-nums">${c.pool === 0 ? "फ्री प्रैक्टिस" : "₹" + c.pool.toLocaleString("en-IN")}</div>
+            </div>
+            <button onclick="joinContest('${c.id}', ${c.fee})" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer shadow-md">
+              ${c.fee === 0 ? "फ्री जॉइन" : "₹" + c.fee}
+            </button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="w-full h-2 rounded-full bg-slate-950 overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width: ${fill}%"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span class="text-emerald-400 font-medium">${c.spotsLeft.toLocaleString("en-IN")} स्पॉट्स बाकी</span>
+              <span>${c.spotsTotal.toLocaleString("en-IN")} कुल स्पॉट्स</span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800 flex justify-between text-xs text-slate-400">
+            <span>प्रथम पुरस्कार: <strong>${c.firstPrize === 0 ? "सम्मान" : "₹" + c.firstPrize.toLocaleString("en-IN")}</strong></span>
+            <span class="text-emerald-400 font-semibold">गारंटीड प्राइज</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function joinContest(contestId, fee) {
+      if (selectedPlayers.length !== 11) {
+        showToast("पहले 11 खिलाड़ियों की टीम पूरी करें!", "error");
+        startTeamCreation("match-1");
+        return;
+      }
+      if (walletBalance < fee) {
+        showToast("वॉलेट में अपर्याप्त बैलेंस है। कृपया कैश जोड़ें।", "error");
+        openModal("walletModal");
+        return;
+      }
+      walletBalance -= fee;
+      updateWalletUI();
+      showToast(`बधाई! आपने सफलतापूर्वक कॉन्टेस्ट जॉइन कर लिया। (-₹${fee})`, "success");
+      switchView("live-arena");
+    }
+
+    // --- TEAM BUILDER LOGIC ---
+    function setRoleTab(role) {
+      activeRoleTab = role;
+      ["WK", "BAT", "AR", "BOWL"].forEach(r => {
+        const btn = document.getElementById(`role-tab-${r}`);
+        if (r === role) {
+          btn.className = "py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 cursor-pointer";
+        } else {
+          btn.className = "py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer";
+        }
+      });
+
+      const hints = {
+        WK: "1 से 4 विकेटकीपर चुन सकते हैं",
+        BAT: "3 से 6 बल्लेबाज चुन सकते हैं",
+        AR: "1 से 4 ऑलराउंडर चुन सकते हैं",
+        BOWL: "3 से 6 गेंदबाज चुन सकते हैं"
+      };
+      document.getElementById("role-instructions").innerText = hints[role];
+      renderPlayersList();
+    }
+
+    function renderPlayersList() {
+      const container = document.getElementById("players-list-table");
+      container.innerHTML = "";
+
+      const filtered = PLAYERS.filter(p => p.role === activeRoleTab);
+
+      filtered.forEach(p => {
+        const isSelected = selectedPlayers.includes(p.id);
+        const row = document.createElement("div");
+        row.onclick = () => togglePlayer(p.id);
+        row.className = `flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
+          isSelected
+            ? "bg-emerald-950/20 border-emerald-500/60"
+            : "bg-slate-900/80 border-slate-800 hover:border-slate-700"
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-xs text-emerald-400">
+              #${p.number}
+            </div>
+            <div>
+              <div class="text-sm font-bold text-white">${p.name}</div>
+              <div class="text-xs text-slate-400">
+                <span class="${p.team === 'IND' ? 'text-blue-400 font-bold' : 'text-amber-400 font-bold'}">${p.team}</span>
+                · ${p.role}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <div class="text-sm font-bold text-white tabular-nums">${p.credits}</div>
+              <div class="text-[10px] text-slate-400">क्रेडिट्स</div>
+            </div>
+            <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
+              isSelected ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+            }">
+              ${isSelected ? '✓' : '+'}
+            </div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function togglePlayer(playerId) {
+      const p = PLAYERS.find(x => x.id === playerId);
+      if (!p) return;
+
+      if (selectedPlayers.includes(playerId)) {
+        selectedPlayers = selectedPlayers.filter(id => id !== playerId);
+        if (captainId === playerId) captainId = "";
+        if (viceCaptainId === playerId) viceCaptainId = "";
+      } else {
+        if (selectedPlayers.length >= 11) {
+          showToast("आप अधिकतम 11 खिलाड़ी ही चुन सकते हैं।", "error");
+          return;
+        }
+
+        const currentCreditsUsed = selectedPlayers.reduce((acc, id) => {
+          const pl = PLAYERS.find(x => x.id === id);
+          return acc + (pl ? pl.credits : 0);
+        }, 0);
+
+        if (100 - currentCreditsUsed < p.credits) {
+          showToast(`अपर्याप्त क्रेडिट्स! केवल ${(100 - currentCreditsUsed).toFixed(1)} Cr बचे हैं।`, "error");
+          return;
+        }
+
+        const teamCount = selectedPlayers.filter(id => {
+          const pl = PLAYERS.find(x => x.id === id);
+          return pl && pl.team === p.team;
+        }).length;
+
+        if (teamCount >= 7) {
+          showToast(`${p.team} टीम से अधिकतम 7 खिलाड़ी ही अनुमत हैं।`, "error");
+          return;
+        }
+
+        selectedPlayers.push(playerId);
+      }
+
+      updateBuilderUI();
+      renderPlayersList();
+    }
+
+    function updateBuilderUI() {
+      const count = selectedPlayers.length;
+      document.getElementById("selected-count-badge").innerText = count;
+
+      const creditsUsed = selectedPlayers.reduce((acc, id) => {
+        const p = PLAYERS.find(x => x.id === id);
+        return acc + (p ? p.credits : 0);
+      }, 0);
+      const creditsLeft = (100 - creditsUsed).toFixed(1);
+      document.getElementById("credits-left-badge").innerText = creditsLeft;
+
+      const indCount = selectedPlayers.filter(id => PLAYERS.find(x => x.id === id)?.team === "IND").length;
+      const ausCount = selectedPlayers.filter(id => PLAYERS.find(x => x.id === id)?.team === "AUS").length;
+      document.getElementById("team1-count-badge").innerText = indCount;
+      document.getElementById("team2-count-badge").innerText = ausCount;
+
+      // Role counters
+      ["WK", "BAT", "AR", "BOWL"].forEach(r => {
+        const cnt = selectedPlayers.filter(id => PLAYERS.find(x => x.id === id)?.role === r).length;
+        const el = document.getElementById(`count-${r}`);
+        if (el) el.innerText = cnt;
+      });
+
+      // 11 Dots
+      const dotsContainer = document.getElementById("slot-dots");
+      dotsContainer.innerHTML = "";
+      for (let i = 0; i < 11; i++) {
+        const filled = i < count;
+        const dot = document.createElement("div");
+        dot.className = `h-2 rounded-full ${filled ? "bg-emerald-500" : "bg-slate-800"}`;
+        dotsContainer.appendChild(dot);
+      }
+
+      // Next button state
+      const btnNext = document.getElementById("btn-next-step");
+      if (count === 11 && Number(creditsLeft) >= 0) {
+        btnNext.className = "flex-1 max-w-sm py-3 px-6 rounded-xl font-bold text-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 cursor-pointer shadow-lg";
+      } else {
+        btnNext.className = "flex-1 max-w-sm py-3 px-6 rounded-xl font-bold text-sm bg-slate-800 text-slate-500 cursor-not-allowed";
+      }
+
+      updatePitchModal();
+    }
+
+    function autoPickSquad(notify = true) {
+      selectedPlayers = [
+        "p-ind-1", // Pant (WK)
+        "p-ind-3", // Kohli (BAT)
+        "p-ind-4", // Rohit (BAT)
+        "p-ind-5", // Surya (BAT)
+        "p-aus-3", // Head (BAT)
+        "p-ind-7", // Hardik (AR)
+        "p-aus-7", // Maxwell (AR)
+        "p-aus-8", // Stoinis (AR)
+        "p-ind-10", // Bumrah (BOWL)
+        "p-ind-11", // Arshdeep (BOWL)
+        "p-aus-10"  // Starc (BOWL)
+      ];
+      captainId = "p-ind-3";
+      viceCaptainId = "p-ind-10";
+      updateBuilderUI();
+      renderPlayersList();
+      if (notify) showToast("⚡ 11 खिलाड़ियों की संतुलित टीम ऑटो-पिक हो गई!", "success");
+    }
+
+    function proceedToCaptainStep() {
+      if (selectedPlayers.length !== 11) {
+        showToast("कृपया पूरे 11 खिलाड़ी चुनें!", "error");
+        return;
+      }
+      document.getElementById("step-1-players").classList.add("hidden");
+      document.getElementById("step-2-captain").classList.remove("hidden");
+      document.getElementById("builder-step-title").innerText = "कैप्टन और वाइस-कैप्टन चुनें (Step 2/2)";
+
+      renderCaptainList();
+
+      const btnNext = document.getElementById("btn-next-step");
+      btnNext.innerText = "✓ टीम सेव करें (Save Team)";
+      btnNext.onclick = finalizeTeamSave;
+    }
+
+    function renderCaptainList() {
+      const container = document.getElementById("captain-selection-list");
+      container.innerHTML = "";
+
+      selectedPlayers.forEach(pid => {
+        const p = PLAYERS.find(x => x.id === pid);
+        if (!p) return;
+        const isC = captainId === pid;
+        const isVC = viceCaptainId === pid;
+
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-800";
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-slate-400">#${p.number}</span>
+            <div>
+              <div class="text-sm font-bold text-white flex items-center gap-2">
+                <span>${p.name}</span>
+                ${isC ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-black">CAPTAIN 2X</span>' : ''}
+                ${isVC ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-400 text-slate-950 font-black">VC 1.5X</span>' : ''}
+              </div>
+              <div class="text-xs text-slate-400">${p.team} · ${p.role} · ${p.credits} Cr</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="setCaptain('${p.id}')" class="w-8 h-8 rounded-full font-bold text-xs cursor-pointer ${
+              isC ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-400' : 'bg-slate-800 text-slate-400'
+            }">C</button>
+            <button onclick="setViceCaptain('${p.id}')" class="w-8 h-8 rounded-full font-bold text-xs cursor-pointer ${
+              isVC ? 'bg-emerald-400 text-slate-950 ring-2 ring-emerald-400' : 'bg-slate-800 text-slate-400'
+            }">VC</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function setCaptain(id) {
+      captainId = id;
+      if (viceCaptainId === id) viceCaptainId = "";
+      renderCaptainList();
+    }
+
+    function setViceCaptain(id) {
+      viceCaptainId = id;
+      if (captainId === id) captainId = "";
+      renderCaptainList();
+    }
+
+    function finalizeTeamSave() {
+      if (!captainId || !viceCaptainId) {
+        showToast("कृपया कैप्टन और वाइस-कैप्टन दोनों चुनें!", "error");
+        return;
+      }
+      showToast("🎉 आपकी टीम सफलतापूर्वक सेव हो गई!", "success");
+      switchView("contests");
+    }
+
+    // --- PITCH MODAL UPDATE ---
+    function updatePitchModal() {
+      const rows = { WK: "pitch-wk-row", BAT: "pitch-bat-row", AR: "pitch-ar-row", BOWL: "pitch-bowl-row" };
+      Object.values(rows).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = "";
+      });
+
+      selectedPlayers.forEach(pid => {
+        const p = PLAYERS.find(x => x.id === pid);
+        if (!p) return;
+        const rowEl = document.getElementById(rows[p.role]);
+        if (!rowEl) return;
+
+        const isC = p.id === captainId;
+        const isVC = p.id === viceCaptainId;
+
+        const token = document.createElement("div");
+        token.className = "flex flex-col items-center";
+        token.innerHTML = `
+          <div class="relative">
+            ${isC ? '<span class="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-amber-400 text-slate-950 font-black text-[9px] flex items-center justify-center">C</span>' : ''}
+            ${isVC ? '<span class="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-slate-200 text-slate-950 font-black text-[9px] flex items-center justify-center">VC</span>' : ''}
+            <div class="w-10 h-10 rounded-full flex flex-col items-center justify-center border-2 ${
+              p.team === 'IND' ? 'bg-blue-700 border-amber-400 text-white' : 'bg-amber-600 border-emerald-400 text-slate-950'
+            }">
+              <span class="text-xs">👕</span>
+              <span class="text-[8px] font-bold leading-none">${p.number}</span>
+            </div>
+          </div>
+          <div class="mt-1 px-1.5 py-0.2 rounded bg-slate-950 text-[10px] font-bold text-white max-w-[70px] truncate text-center">
+            ${p.name.split(" ").slice(-1)[0]}
+          </div>
+          <div class="text-[9px] text-emerald-300 tabular-nums">${p.credits} Cr</div>
+        `;
+        rowEl.appendChild(token);
+      });
+
+      document.getElementById("pitch-player-count").innerText = `${selectedPlayers.length}/11 खिलाड़ी`;
+    }
+
+    // --- LIVE SIMULATION & LEADERBOARD ---
+    function toggleSimulation() {
+      const btn = document.getElementById("btn-toggle-sim");
+      if (isSimulating) {
+        clearInterval(simInterval);
+        isSimulating = false;
+        btn.innerText = "▶ प्ले सिमुलेशन";
+        btn.className = "px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer";
+      } else {
+        isSimulating = true;
+        btn.innerText = "⏸ पॉज सिमुलेशन";
+        btn.className = "px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs cursor-pointer";
+        simInterval = setInterval(() => {
+          if (simulationIndex >= SIMULATION_EVENTS.length - 1) {
+            toggleSimulation();
+            showToast("लाइव मैच सिमुलेशन संपन्न हुआ!", "success");
+            return;
+          }
+          stepSimulation();
+        }, 3500);
+      }
+    }
+
+    function stepSimulation() {
+      if (simulationIndex < SIMULATION_EVENTS.length - 1) {
+        simulationIndex++;
+        const ev = SIMULATION_EVENTS[simulationIndex];
+        document.getElementById("live-match-score").innerText = ev.score;
+        document.getElementById("live-event-subtitle").innerText = ev.text;
+        document.getElementById("live-over-tag").innerText = ev.over;
+        document.getElementById("live-commentary-text").innerText = ev.text;
+        document.getElementById("sim-event-counter").innerText = `इवेंट ${simulationIndex + 1}/${SIMULATION_EVENTS.length}`;
+
+        // Random rank boost simulation for user
+        const newPts = (310 + simulationIndex * 7.5).toFixed(1);
+        document.getElementById("user-live-points").innerText = `${newPts} pts`;
+        showToast(`⚡ ${ev.text}`, "info");
+        renderLeaderboard(Number(newPts));
+      }
+    }
+
+    function resetSimulation() {
+      if (isSimulating) toggleSimulation();
+      simulationIndex = 0;
+      const ev = SIMULATION_EVENTS[0];
+      document.getElementById("live-match-score").innerText = ev.score;
+      document.getElementById("live-event-subtitle").innerText = ev.text;
+      document.getElementById("live-over-tag").innerText = ev.over;
+      document.getElementById("live-commentary-text").innerText = ev.text;
+      document.getElementById("sim-event-counter").innerText = `इवेंट 1/${SIMULATION_EVENTS.length}`;
+      document.getElementById("user-live-points").innerText = `295.0 pts`;
+      renderLeaderboard(295);
+      showToast("सिमुलेशन शुरुआत पर रीसेट कर दिया गया।", "info");
+    }
+
+    function renderLeaderboard(customUserPts = 331.0) {
+      const container = document.getElementById("leaderboard-rows");
+      container.innerHTML = "";
+
+      const updated = LEADERBOARD.map(e => e.isMe ? { ...e, pts: customUserPts } : e);
+      updated.sort((a, b) => b.pts - a.pts);
+
+      updated.forEach((entry, idx) => {
+        const rank = idx + 1;
+        if (entry.isMe) {
+          document.getElementById("user-live-rank").innerText = `#${rank}`;
+          document.getElementById("user-live-prize").innerText = entry.prize;
+        }
+
+        const row = document.createElement("div");
+        row.className = `grid grid-cols-12 items-center px-6 py-3.5 text-xs transition-colors ${
+          entry.isMe ? "bg-emerald-950/20 font-bold" : "hover:bg-slate-800/40"
+        }`;
+        row.innerHTML = `
+          <div class="col-span-2 font-black tabular-nums ${rank <= 3 ? 'text-amber-400 text-sm' : 'text-white'}">
+            #${rank}
+          </div>
+          <div class="col-span-5 md:col-span-4 flex items-center gap-1.5 truncate">
+            <span class="text-white font-bold truncate">${entry.user}</span>
+            ${entry.isMe ? '<span class="text-[9px] bg-emerald-500 text-slate-950 px-1 rounded font-black">YOU</span>' : ''}
+          </div>
+          <div class="hidden md:block col-span-2 text-slate-400 text-[11px]">
+            C: ${entry.c}
+          </div>
+          <div class="col-span-3 md:col-span-2 text-right text-emerald-400 font-black tabular-nums">
+            ${entry.pts} pts
+          </div>
+          <div class="col-span-2 md:col-span-2 text-right text-amber-400 font-extrabold tabular-nums">
+            ${entry.prize}
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderMyContests() {
+      const container = document.getElementById("my-contests-cards");
+      container.innerHTML = `
+        <div class="p-5 rounded-2xl bg-slate-900 border border-emerald-500/30 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-400">मेगा कॉन्टेस्ट · ₹10 करोड़</span>
+            <span class="text-xs text-slate-500">IND vs AUS</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <div>
+              <div class="text-xs text-slate-400">जॉइन की गई टीम</div>
+              <div class="font-bold text-white">T1 · Champions XI</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">वर्तमान रैंक</div>
+              <div class="font-bold text-emerald-400 font-outfit">#3 (विनिंग जोन)</div>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800 flex justify-between text-xs">
+            <button onclick="switchView('live-arena')" class="text-emerald-400 font-semibold hover:underline cursor-pointer">
+              ⚡ लाइव ट्रैकिंग देखें →
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- WALLET LOGIC ---
+    function updateWalletUI() {
+      document.getElementById("wallet-balance-display").innerText = walletBalance.toLocaleString("en-IN");
+      document.getElementById("modal-wallet-balance").innerText = walletBalance.toLocaleString("en-IN");
+    }
+
+    function depositCash() {
+      const amt = Number(document.getElementById("input-add-cash").value) || 0;
+      if (amt <= 0) return;
+      walletBalance += amt;
+      updateWalletUI();
+      closeModal("walletModal");
+      showToast(`सफलतापूर्वक ₹${amt.toLocaleString("en-IN")} वॉलेट में जोड़े गए!`, "success");
+    }
+
+    function quickSetAmount(n) {
+      document.getElementById("input-add-cash").value = n;
+    }
+
+    // --- MODAL & TOAST HELPERS ---
+    function openModal(modalId) {
+      const m = document.getElementById(modalId);
+      if (m) {
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+    }
+
+    function closeModal(modalId) {
+      const m = document.getElementById(modalId);
+      if (m) {
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+    }
+
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `p-3.5 rounded-xl border shadow-2xl text-xs font-semibold backdrop-blur-md pointer-events-auto transition-all ${
+        type === "success" ? "bg-emerald-950/90 border-emerald-500/50 text-emerald-200" :
+        type === "error" ? "bg-rose-950/90 border-rose-500/50 text-rose-200" :
+        "bg-slate-900/95 border-slate-700 text-slate-200"
+      }`;
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
